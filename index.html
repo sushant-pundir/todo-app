@@ -1,25 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>ToDo App</title>
-        <link rel="stylesheet" href="style.css" />
-        <script
-            src="https://kit.fontawesome.com/4cab42481f.js"
-            crossorigin="anonymous"
-        ></script>
-    </head>
-    <body>
-        <div class="container">
-            <h1 class="header">To-do List</h1>
-            <div class="input-container">
-                <input type="text" placeholder="Add your task" id="input" />
-                <button type="button" id="add-btn">ADD</button>
-            </div>
-            <ul id="task-list"></ul>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A simple and responsive Todo List application.">
+    <meta name="theme-color" content="#784ba0">
+    <title>Todo List Application</title>
+    <link rel="stylesheet" href="style.css">
+    <script
+        src="https://kit.fontawesome.com/4cab42481f.js"
+        crossorigin="anonymous"
+    ></script>
+</head>
+<body>
+    <main class="container">
+        <h1 class="header">Todo List</h1>
+
+        <div class="input-container">
+            <input
+                type="text"
+                placeholder="Add your task"
+                id="input"
+                aria-label="New task"
+                maxlength="200"
+                autocomplete="off"
+            >
+            <button type="button" id="add-btn">ADD</button>
         </div>
 
-        <script src="script.js"></script>
-    </body>
+        <ul id="task-list" aria-label="Your tasks" aria-live="polite"></ul>
+    </main>
+
+    <script src="script.js"></script>
+</body>
 </html>
