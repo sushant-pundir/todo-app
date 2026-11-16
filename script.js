@@ -1,54 +1,114 @@
+"use strict";
+
 const newTask = document.getElementById("input");
 const addTask = document.getElementById("add-btn");
 const taskList = document.getElementById("task-list");
 
-// Add a task to the list when button is clicked
-addTask.addEventListener("click", () => {
-    addToList();
-});
+const STORAGE_KEY = "todo-app-tasks";
 
-// Add a task to the list when Enter key pressed
-newTask.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
+let tasks = loadTasks();
+
+function loadTasks() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(saved) ? saved : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveTasks() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function createTask(text) {
+    const cleanText = text.trim();
+
+    if (!cleanText || cleanText.length > 200) {
+        return false;
+    }
+
+    tasks.push({
+        id: crypto.randomUUID(),
+        text: cleanText,
+        completed: false,
+        createdAt: new Date().toISOString()
+    });
+
+    saveTasks();
+    renderTasks();
+    return true;
+}
+
+function deleteTask(id) {
+    tasks = tasks.filter(task => task.id !== id);
+    saveTasks();
+    renderTasks();
+}
+
+function toggleTask(id) {
+    tasks = tasks.map(task =>
+        task.id === id
+            ? { ...task, completed: !task.completed }
+            : task
+    );
+
+    saveTasks();
+    renderTasks();
+}
+
+function renderTasks() {
+    taskList.replaceChildren();
+
+    tasks.forEach(task => {
+        const item = document.createElement("li");
+        item.className = "task-item";
+
+        if (task.completed) {
+            item.classList.add("active");
+        }
+
+        const checkbox = document.createElement("button");
+        checkbox.type = "button";
+        checkbox.className = "btn-check";
+        checkbox.textContent = task.completed ? "✓" : "○";
+        checkbox.setAttribute(
+            "aria-label",
+            task.completed ? "Mark pending" : "Mark completed"
+        );
+
+        checkbox.addEventListener("click", () => toggleTask(task.id));
+
+        const text = document.createElement("span");
+        text.className = "text";
+        text.textContent = task.text;
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "btn-close";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", "Delete " + task.text);
+
+        remove.addEventListener("click", () => deleteTask(task.id));
+
+        item.append(checkbox, text, remove);
+        taskList.appendChild(item);
+    });
+}
+
+function addToList() {
+    if (createTask(newTask.value)) {
+        newTask.value = "";
+        newTask.focus();
+    }
+}
+
+addTask.addEventListener("click", addToList);
+
+newTask.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
         addToList();
     }
 });
 
-function addToList() {
-    let text = newTask.value;
-    if (text) {
-        // Create the listItems
-        const listItem = document.createElement("li");
-        listItem.className = "task-item";
-        const checkbox = document.createElement("button");
-        checkbox.className = "btn-check";
-        checkbox.innerHTML = `<i class="fa-solid fa-check"><i/>`;
-        const span = document.createElement("span");
-        span.className = "text";
-        span.textContent = text;
-        const closeButton = document.createElement("button");
-        closeButton.className = "btn-close";
-        closeButton.innerHTML = `<i class="fa-solid fa-xmark"><i/>`;
-
-        // Append the buttons and text to the list
-        listItem.appendChild(checkbox);
-        listItem.appendChild(span);
-        listItem.appendChild(closeButton);
-
-        // Append the listItem to the task list
-        taskList.appendChild(listItem);
-
-        // Clear input field
-        newTask.value = "";
-
-        // Add functionality for close button click
-        closeButton.addEventListener("click", () => {
-            taskList.removeChild(listItem);
-        });
-
-        // Add functionality for checkbox click (optional)
-        checkbox.addEventListener("click", () => {
-            listItem.classList.toggle("active");
-        });
-    }
-}
+renderTasks();
