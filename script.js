@@ -57,6 +57,18 @@ function toggleTask(id) {
     renderTasks();
 }
 
+function editTask(id) {
+    const task = tasks.find(item => item.id === id);
+    if (!task) return;
+
+    const updated = prompt("Edit task:", task.text);
+    if (updated === null || !updated.trim()) return;
+
+    task.text = updated.trim().slice(0, 200);
+    saveTasks();
+    renderTasks();
+}
+
 function renderTasks() {
     taskList.replaceChildren();
 
@@ -91,7 +103,14 @@ function renderTasks() {
 
         remove.addEventListener("click", () => deleteTask(task.id));
 
-        item.append(checkbox, text, remove);
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.className = "btn-edit";
+        edit.textContent = "Edit";
+        edit.setAttribute("aria-label", "Edit " + task.text);
+        edit.addEventListener("click", () => editTask(task.id));
+
+        item.append(checkbox, text, edit, remove);
         taskList.appendChild(item);
     });
 }
